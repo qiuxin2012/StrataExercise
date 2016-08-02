@@ -28,18 +28,19 @@ object KMeanTest {
     val means = args(5)
 
     val data: RDD[Vector] = sc.parallelize(1 to recordNum).map(i => {
-      val ran = new Random()
-      val indexArr = (1 to (dimension * sparsity).toInt).map(in => ran.nextInt(dimension)).sorted.toArray
-      val valueArr = (1 to (dimension * sparsity).toInt).map(in => ran.nextDouble()).sorted.toArray
+      val indexArr = (1 to (dimension * sparsity).toInt).map(in => Random.nextInt(dimension)).sorted.toArray
+      val valueArr = (1 to (dimension * sparsity).toInt).map(in => Random.nextDouble()).toArray
       val vec: Vector = new SparseVector(dimension, indexArr, valueArr)
       vec
-    }).cache()
+    })
+    data.setName("dataRDD")
+    data.cache()
     println(s"${data.getNumPartitions} partitions ${data.count()} records generated")
 
     val st = System.nanoTime()
 
 
-    if(means == "my") {
+    if(means.toLowerCase() == "sparsekmeans") {
       println("running sparse kmeans")
       val model = new SparseKMeans()
         .setK(k)
