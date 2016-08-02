@@ -17,12 +17,12 @@ object KMeanTest {
     Logger.getLogger("org").setLevel(Level.WARN)
     Logger.getLogger("akka").setLevel(Level.WARN)
 
-    val conf = new SparkConf().setAppName(s"kmeans: ${args.mkString(",")}").setMaster("local[4]")
+    val conf = new SparkConf().setAppName(s"kmeans: ${args.mkString(",")}")
     val sc = new SparkContext(conf)
 
     val k = args(0).toInt
-    val dimension = args(1).toInt
-    val recordNum = args(2).toInt
+    val dimension = args(1).toDouble.toInt
+    val recordNum = args(2).toDouble.toInt
     val sparsity = args(3).toDouble
     val iterations = args(4).toInt
     val means = args(5)
@@ -34,7 +34,7 @@ object KMeanTest {
       val vec: Vector = new SparseVector(dimension, indexArr, valueArr)
       vec
     }).cache()
-    println(data.count() + " records generated")
+    println(s"${data.getNumPartitions} partitions ${data.count()} records generated")
 
     val st = System.nanoTime()
 
@@ -45,6 +45,7 @@ object KMeanTest {
         .setK(k)
         .setInitializationMode("random")
         .setMaxIterations(iterations)
+        .setCenterDSthreshold(0.1)
         .run(data)
 
       println((System.nanoTime() - st) / 1e9 + " seconds cost")

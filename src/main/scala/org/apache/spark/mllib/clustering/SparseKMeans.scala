@@ -368,9 +368,7 @@ class SparseKMeans private (
   : Array[Array[VectorWithNorm]] = {
     // Sample all the cluster centers in one pass to avoid repeated scans
     val sample = data.takeSample(true, runs * k, new XORShiftRandom(this.seed).nextInt()).toSeq
-    Array.tabulate(runs)(r => sample.slice(r * k, (r + 1) * k).map { v =>
-      new VectorWithNorm(Vectors.dense(v.vector.toArray), v.norm)
-    }.toArray)
+    Array.tabulate(runs)(r => sample.slice(r * k, (r + 1) * k).toArray)
   }
 
   /**
